@@ -1,0 +1,22 @@
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+
+# macOS
+.DS_Store
+
+# Docker volumes
+/tmp/safeopen/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# User data
+.safeopen/
