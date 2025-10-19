@@ -1,0 +1,64 @@
+#include <tunables/global>
+
+# AppArmor profile for SafeOpen container
+# Provides additional security restrictions
+
+profile safeopen-profile flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+  #include <abstractions/ssl_certs>
+
+  # Network access
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # Deny access to sensitive host directories
+  deny /proc/sys/kernel/** wklx,
+  deny /sys/kernel/security/** wklx,
+  deny /sys/firmware/** wklx,
+  deny /sys/devices/** wklx,
+
+  # Allow read access to necessary system files
+  /etc/ld.so.cache r,
+  /etc/ld.so.preload r,
+  /etc/ld.so.conf r,
+  /etc/ld.so.conf.d/ r,
+  /etc/ld.so.conf.d/** r,
+  
+  # Allow Chromium to run
+  /usr/bin/chromium-browser rix,
+  /usr/lib/chromium-browser/** rix,
+  
+  # Allow ClamAV
+  /usr/bin/clamscan rix,
+  /usr/bin/freshclam rix,
+  /var/lib/clamav/** r,
+  
+  # Allow access to user home directory (restricted)
+  owner /home/safeuser/** rw,
+  
+  # Allow temporary files
+  /tmp/** rw,
+  /var/tmp/** rw,
+  
+  # Allow logs
+  /var/safe_logs/** rw,
+  
+  # Deny capability changes
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_rawio,
+  deny capability sys_ptrace,
+  deny capability mac_admin,
+  deny capability mac_override,
+  
+  # Allow basic capabilities only
+  capability net_bind_service,
+  capability setuid,
+  capability setgid,
+  capability chown,
+  capability fowner,
+}
