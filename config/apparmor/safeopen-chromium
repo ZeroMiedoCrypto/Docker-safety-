@@ -1,0 +1,39 @@
+# AppArmor profile for safeopen Chromium sessions
+#include <tunables/global>
+
+profile safeopen-chromium flags=(attach_disconnected,mediate_deleted) {
+  include <abstractions/base>
+  include <abstractions/fonts>
+  include <abstractions/nameservice>
+  include <abstractions/gnome>
+  include <abstractions/X>
+
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_time,
+  deny capability audit_write,
+  deny capability dac_override,
+  deny capability dac_read_search,
+
+  network inet stream,
+  network inet6 stream,
+  deny network raw,
+  deny network packet,
+
+  /opt/safeopen/scripts/** rix,
+  /opt/safeopen/config/** r,
+  /usr/lib/** r,
+  /usr/bin/** rix,
+  /bin/** rix,
+  /lib/** r,
+  /etc/** r,
+
+  owner /tmp/safeopen/** rwk,
+  owner /home/safeuser/** rwk,
+  owner /run/user/[0-9]*/** rwk,
+
+  deny /proc/sysrq-trigger rw,
+  deny /sys/** rw,
+
+  signal (receive, send) peer=safeopen-chromium,
+}
